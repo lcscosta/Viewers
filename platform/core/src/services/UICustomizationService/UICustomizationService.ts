@@ -70,7 +70,6 @@ export default class UICustomizationService extends PubSubService {
 
   modeCustomizations: Record<string, UICustomization> = {};
   globalCustomizations: Record<string, UICustomization> = {};
-  customizationTypes: Record<string, CustomizationTypeInfo>;
   configuration: UICustomizationConfiguration;
 
   constructor({ configuration, commandsManager }) {
@@ -200,11 +199,6 @@ export default class UICustomizationService extends PubSubService {
     this._broadcastGlobalCustomizationModified();
   }
 
-  getTypeInfo(customizationType?: string, defaultUiType?: CustomizationTypeInfo): CustomizationTypeInfo {
-    if (!customizationType) return defaultUiType;
-    return this.customizationTypes[customizationType] ?? defaultUiType;
-  }
-
   protected setConfigGlobalCustomization(configuration: UIConfiguration): void {
     this.globalCustomizations = {};
     const keys = flattenNestedStrings(configuration.globalCustomizations);
@@ -281,21 +275,4 @@ export default class UICustomizationService extends PubSubService {
     }
   }
 
-  /** Gets the component and props value for the component from a
-   * UICustomization object, taking into account the default type info.
-   */
-  public getComponent(
-    customization: UICustomization,
-    defaultUiType?: CustomizationTypeInfo
-  ): ComponentReturn | void {
-    const customizationType = this.getTypeInfo(customization.customizationType, defaultUiType);
-    const component = (customization?.component ||
-      customizationType?.component) as ComponentType;
-    if (!component) return;
-    const props = (customization?.props || customizationType?.props) as Record<
-      string,
-      unknown
-    >;
-    return { component, props };
-  }
 }
